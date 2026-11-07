@@ -49,45 +49,85 @@ function App() {
 		},
 	});
 
+	// Add a ref to hold the current dragging position at the top of your component
+	const pointerRef = useRef<{ x: number; y: number } | null>(null);
+
 	useEffect(() => {
 		if (!canvasRef.current) return;
 
-		// The angle of rotation of the globe
-		// We'll update this on every frame to make the globe spin
 		let phi = 0;
+		// Track the current theta value so it can be changed by dragging vertically
+		let currentTheta = 0.4;
 
 		const globe = createGlobe(canvasRef.current, {
 			devicePixelRatio: 2,
 			width: 400 * 2,
 			height: 400 * 2,
 			phi: 0,
-			theta: 0.4,
+			theta: currentTheta,
 			dark: 1,
-			diffuse: 0.8,
+			diffuse: 1.2,
 			mapSamples: 16000,
 			mapBrightness: 6,
-			baseColor: [0.3, 0.3, 0.3],
-			markerColor: [0.8, 0.1, 0.1],
-			glowColor: [0.2, 0.2, 0.2],
+			baseColor: [0.0, 0.8, 0.3],
+			glowColor: [0.1, 0.4, 0.9],
+			markerColor: [1.0, 0.1, 0.1],
 			markers: [],
-			opacity: 0.7,
+			opacity: 0.9,
 			onRender: (state) => {
-				// Called on every animation frame.
-				// `state` will be an empty object, return updated params.
-
-				// Get the current positions from our map
 				state.markers = [...positions.current.values()];
 
-				// Rotate the globe
+				// If the user isn't dragging, auto-rotate slowly
+				if (!pointerRef.current) {
+					phi += 0.005; // Made auto-rotation slightly slower for a better feel
+				}
+
 				state.phi = phi;
-				phi += 0.02;
+				state.theta = currentTheta;
 			},
 		});
 
+		// Mouse and Touch Interaction Handlers
+		const canvas = canvasRef.current;
+
+		const handlePointerDown = (e: PointerEvent) => {
+			pointerRef.current = { x: e.clientX, y: e.clientY };
+			canvas.style.cursor = "grabbing";
+		};
+
+		const handlePointerMove = (e: PointerEvent) => {
+			if (!pointerRef.current) return;
+
+			// Calculate how far the mouse has moved
+			const deltaX = e.clientX - pointerRef.current.x;
+			const deltaY = e.clientY - pointerRef.current.y;
+
+			// Update the coordinate references
+			pointerRef.current = { x: e.clientX, y: e.clientY };
+
+			// Adjust sensitivity by dividing the delta
+			phi += deltaX / 200;
+			currentTheta = Math.max(-0.8, Math.min(0.8, currentTheta + deltaY / 200));
+		};
+
+		const handlePointerUp = () => {
+			pointerRef.current = null;
+			canvas.style.cursor = "grab";
+		};
+
+		// Attach listeners to the canvas
+		canvas.addEventListener("pointerdown", handlePointerDown);
+		window.addEventListener("pointermove", handlePointerMove);
+		window.addEventListener("pointerup", handlePointerUp);
+
 		return () => {
 			globe.destroy();
+			canvas.removeEventListener("pointerdown", handlePointerDown);
+			window.removeEventListener("pointermove", handlePointerMove);
+			window.removeEventListener("pointerup", handlePointerUp);
 		};
 	}, []);
+
 
 	return (
 		<div className="App">

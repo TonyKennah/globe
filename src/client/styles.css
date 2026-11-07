@@ -48,3 +48,22 @@ a {
 	text-underline-offset: 3px;
 	text-decoration-color: #555;
 }
+
+.globe-wrapper {
+	position: relative;
+	width: 400px;
+	height: 400px;
+	margin: 0 auto;
+
+	/* 💡 Keeps the canvas centered as it scales */
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	overflow: visible;
+}
+
+.globe-wrapper canvas {
+	cursor: grab;
+	max-width: none !important;
+	/* Overrides the previous maxWidth limits during deep zoom-ins */
+}
