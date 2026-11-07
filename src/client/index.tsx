@@ -61,7 +61,7 @@ function App() {
 			width: 400 * 2,
 			height: 400 * 2,
 			phi: 0,
-			theta: 0,
+			theta: 0.4,
 			dark: 1,
 			diffuse: 0.8,
 			mapSamples: 16000,
@@ -80,7 +80,7 @@ function App() {
 
 				// Rotate the globe
 				state.phi = phi;
-				phi += 0.01;
+				phi += 0.02;
 			},
 		});
 
@@ -91,7 +91,7 @@ function App() {
 
 	return (
 		<div className="App">
-			<h1>Where's everyone at?</h1>
+			<h1>Where are you?</h1>
 			{counter !== 0 ? (
 				<p>
 					<b>{counter}</b> {counter === 1 ? "person" : "people"} connected.
@@ -105,13 +105,6 @@ function App() {
 				ref={canvasRef}
 				style={{ width: 400, height: 400, maxWidth: "100%", aspectRatio: 1 }}
 			/>
-
-			{/* Let's give some credit */}
-			<p>
-				Powered by <a href="https://cobe.vercel.app/">🌏 Cobe</a>,{" "}
-				<a href="https://www.npmjs.com/package/phenomenon">Phenomenon</a> and{" "}
-				<a href="https://npmjs.com/package/partyserver/">🎈 PartyServer</a>
-			</p>
 		</div>
 	);
 }
